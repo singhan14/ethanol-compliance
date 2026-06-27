@@ -175,7 +175,7 @@ function showError(msg) {
 // Event Listeners
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        const response = await fetch('database.json');
+        const response = await fetch('https://ethanolcompliance-db-2026.s3.amazonaws.com/database.json');
         if (!response.ok) throw new Error("Failed to fetch");
         fullDatabase = await response.json();
         populateBrands(); // Default to cars
