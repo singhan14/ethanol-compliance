@@ -122,15 +122,15 @@ function checkCompliance() {
             </div>`;
         }
     } else {
-        title = `Not E20 Compliant`;
+        title = `Not ${maxEthanol} Compliant`;
         bgColor = "bg-error"; // Red
         icon = "cancel";
         warningHtml = `
         <div class="mt-4 p-4 bg-red-100 border border-red-300 text-red-900 rounded-lg flex gap-3">
             <span class="material-symbols-outlined text-red-600">dangerous</span>
             <div>
-                <strong>Warning: Do not use E20 or E85.</strong> 
-                <p>Using E20 in this model (manufactured before ${vehicleData.compliantYear}) can cause severe engine and fuel line damage over time. Stick to standard E10 petrol.</p>
+                <strong>Warning: Do not use ${maxEthanol} or E85.</strong> 
+                <p>Using ${maxEthanol} in this model (manufactured before ${vehicleData.compliantYear}) can cause severe engine and fuel line damage over time. Stick to standard E10 petrol.</p>
             </div>
         </div>`;
     }
