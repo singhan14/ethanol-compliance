@@ -1,0 +1,110 @@
+/* Custom Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f2f5;
+    overflow-x: hidden;
+}
+h1, h2, h3, h4, h5, h6, .font-poppins {
+    font-family: 'Poppins', sans-serif;
+}
+.glass-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.btn-primary {
+    transition: all 0.3s ease;
+}
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+.card {
+    transition: all 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+.bg-blobs {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+}
+.blob-1 {
+    width: 400px;
+    height: 400px;
+    background: #87CEEB; /* Sky Blue */
+    top: -150px;
+    left: -150px;
+    animation: move 20s infinite alternate;
+}
+.blob-2 {
+    width: 300px;
+    height: 300px;
+    background: #98FB98; /* Pale Green */
+    bottom: -100px;
+    right: -100px;
+    animation: move 25s infinite alternate-reverse;
+}
+.blob-3 {
+    width: 250px;
+    height: 250px;
+    background: #FFDAB9; /* Peach Puff */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: move 30s infinite alternate;
+}
+
+@keyframes move {
+    from { transform: translate(0, 0) rotate(0deg); }
+    to { transform: translate(100px, 50px) rotate(180deg); }
+}
+
+/* Scroll Animations */
+.fade-in-section {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.fade-in-section.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- STYLES for content pages --- */
+.content-page-container {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+/* Enhancing Tailwind's prose class for better readability on our background */
+.prose h2 {
+    color: #1f2937; /* Darker gray for headings */
+    margin-bottom: 1rem;
+}
+
+.prose p {
+    color: #374151; /* Comfortable reading color for paragraphs */
+    line-height: 1.75;
+}
+
+.prose a {
+    color: #2563eb;
+    text-decoration: underline;
+}
+.prose a:hover {
+    color: #1d4ed8;
+}
