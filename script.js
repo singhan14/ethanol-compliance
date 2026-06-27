@@ -1,48 +1,50 @@
-let compliantCars = {};
+let fullDatabase = { cars: {}, bikes: {} };
 
+const typeSelect = document.getElementById('vehicle-type');
 const brandSelect = document.getElementById('car-brand');
 const modelSelect = document.getElementById('car-model');
 const yearSelect = document.getElementById('car-year');
 const checkButton = document.getElementById('check-button');
+const resultsContainer = document.getElementById('results-container');
+const placeholderState = document.getElementById('placeholder-state');
 const resultMessage = document.getElementById('result-message');
-const resultText = resultMessage?.querySelector('p:first-child');
-const resultSubText = resultMessage?.querySelector('p:last-child');
-
-const monthlyKmInput = document.getElementById('monthly-km');
-const carMileageInput = document.getElementById('car-mileage');
-const petrolPriceE10Input = document.getElementById('petrol-price-e10');
-const petrolPriceE20Input = document.getElementById('petrol-price-e20');
-const calculateButton = document.getElementById('calculate-expense');
-const calculatorResultDiv = document.getElementById('calculator-result');
-const e10ExpenseText = document.getElementById('e10-expense');
-const e20ExpenseText = document.getElementById('e20-expense');
-const gainLossResultDiv = document.getElementById('gain-loss-result');
-const gainLossText = document.getElementById('gain-loss-text');
 
 function populateBrands() {
     if (!brandSelect) return;
-    brandSelect.innerHTML = '<option value="">-- Select a Brand --</option>';
-    const brands = Object.keys(compliantCars).sort();
+    const vehicleType = typeSelect.value; // 'cars' or 'bikes'
+    const db = fullDatabase[vehicleType] || {};
+    
+    brandSelect.innerHTML = '<option value="">Select Manufacturer</option>';
+    const brands = Object.keys(db).sort();
     brands.forEach(brand => {
         const option = document.createElement('option');
         option.value = brand;
         option.textContent = brand;
         brandSelect.appendChild(option);
     });
+    
+    // Reset models and years
+    modelSelect.innerHTML = '<option value="">Select Model</option>';
+    modelSelect.disabled = true;
+    yearSelect.innerHTML = '<option value="">Year</option>';
+    yearSelect.disabled = true;
+    checkButton.disabled = true;
 }
 
 function updateModels() {
+    const vehicleType = typeSelect.value;
     const selectedBrand = brandSelect.value;
-    modelSelect.innerHTML = '<option value="">-- Select a Model --</option>';
-    yearSelect.innerHTML = '<option value="">-- Select Year --</option>';
+    
+    modelSelect.innerHTML = '<option value="">Select Model</option>';
+    yearSelect.innerHTML = '<option value="">Year</option>';
     modelSelect.disabled = true;
     yearSelect.disabled = true;
     checkButton.disabled = true;
-    hideResult();
 
-    if (compliantCars[selectedBrand]) {
+    const db = fullDatabase[vehicleType] || {};
+    if (db[selectedBrand]) {
         modelSelect.disabled = false;
-        const models = [...new Set(compliantCars[selectedBrand].map(car => car.model))].sort();
+        const models = [...new Set(db[selectedBrand].map(v => v.model))].sort();
         models.forEach(modelName => {
             const option = document.createElement('option');
             option.value = modelName;
@@ -53,20 +55,21 @@ function updateModels() {
 }
 
 function updateYears() {
-    yearSelect.innerHTML = '<option value="">-- Select Year --</option>';
+    yearSelect.innerHTML = '<option value="">Year</option>';
     yearSelect.disabled = true;
     checkButton.disabled = true;
-    hideResult();
 
+    const vehicleType = typeSelect.value;
     const selectedBrand = brandSelect.value;
     const selectedModel = modelSelect.value;
+    const db = fullDatabase[vehicleType] || {};
 
     if (selectedModel) {
-        const carData = compliantCars[selectedBrand]?.find(car => car.model === selectedModel);
-        if (carData && carData.productionStart) {
+        const vehicleData = db[selectedBrand]?.find(v => v.model === selectedModel);
+        if (vehicleData && vehicleData.productionStart) {
             yearSelect.disabled = false;
-            const startYear = carData.productionStart;
-            const endYear = carData.productionEnd || new Date().getFullYear();
+            const startYear = vehicleData.productionStart;
+            const endYear = new Date().getFullYear();
             for (let year = endYear; year >= startYear; year--) {
                 const option = document.createElement('option');
                 option.value = year;
@@ -78,123 +81,114 @@ function updateYears() {
 }
 
 function checkCompliance() {
+    const vehicleType = typeSelect.value;
     const brand = brandSelect.value;
     const model = modelSelect.value;
     const year = parseInt(yearSelect.value, 10);
-    const carData = compliantCars[brand]?.find(car => car.model === model);
+    
+    const db = fullDatabase[vehicleType] || {};
+    const vehicleData = db[brand]?.find(v => v.model === model);
 
-    if (carData) {
-        let isCompliant = carData.compliant;
-        // If a compliance year is specified, the selected year must be >= that year.
-        if (carData.year && year < carData.year) {
-            isCompliant = false;
-        }
-
-        if (isCompliant) {
-             showResult(
-                `✅ Yes, your ${year} ${brand} ${model} is E20 Compliant.`,
-                carData.note || `Models from ${carData.year || 'this period'} onwards are generally compatible.`,
-                'bg-green-100', 'text-green-800'
-            );
-        } else {
-             showResult(
-                `❌ No, your ${year} ${brand} ${model} is likely NOT E20 Compliant.`,
-                carData.note || `This model version was likely discontinued before E20 norms.`,
-                'bg-red-100', 'text-red-800'
-            );
-        }
-    } else {
-         showResult(
-            `🤔 Information Not Available`,
-            `Please check your owner's manual or contact the manufacturer for the ${brand} ${model}.`,
-            'bg-yellow-100', 'text-yellow-800'
-        );
-    }
-}
-
-function showResult(mainText, subText, bgColor, textColor) {
-    if (!resultMessage) return;
-    resultText.textContent = mainText;
-    resultSubText.textContent = subText;
-    resultMessage.className = 'mt-8 p-6 rounded-lg text-center transition-opacity duration-500'; document.getElementById('placeholder-state').style.display = 'none'; resultMessage.classList.remove('hidden');
-    resultMessage.classList.add(bgColor, textColor, 'opacity-100');
-}
-
-function hideResult() {
-    if (!resultMessage) return;
-    resultMessage.classList.remove('opacity-100');
-    resultMessage.classList.add('opacity-0');
-}
-
-function calculateMonthlyExpense() {
-    const monthlyKm = parseFloat(monthlyKmInput.value);
-    const carMileage = parseFloat(carMileageInput.value);
-    const petrolPriceE10 = parseFloat(petrolPriceE10Input.value);
-    const petrolPriceE20 = parseFloat(petrolPriceE20Input.value);
-
-    if (isNaN(monthlyKm) || isNaN(carMileage) || isNaN(petrolPriceE10) || isNaN(petrolPriceE20) || monthlyKm <= 0 || carMileage <= 0 || petrolPriceE10 <= 0 || petrolPriceE20 <= 0) {
-        alert("Please enter valid, positive numbers for all fields.");
+    placeholderState.style.display = 'none';
+    
+    if (!vehicleData) {
+        showError("Data not found for this model.");
         return;
     }
 
-    const e10LitresNeeded = monthlyKm / carMileage;
-    const e10TotalExpense = e10LitresNeeded * petrolPriceE10;
-
-    const e20Mileage = carMileage * 0.96; // 4% mileage drop assumption
-    const e20LitresNeeded = monthlyKm / e20Mileage;
-    const e20TotalExpense = e20LitresNeeded * petrolPriceE20;
-
-    e10ExpenseText.textContent = `₹${e10TotalExpense.toFixed(2)}`;
-    e20ExpenseText.textContent = `₹${e20TotalExpense.toFixed(2)}`;
-
-    const savings = e10TotalExpense - e20TotalExpense;
-    if (savings > 0) {
-        gainLossText.textContent = `You SAVE ₹${savings.toFixed(2)} per month by using E20.`;
-        gainLossResultDiv.className = 'mt-4 p-4 rounded-lg text-center bg-green-200 text-green-800';
-    } else {
-        gainLossText.textContent = `You could lose ₹${Math.abs(savings).toFixed(2)} per month with E20.`;
-        gainLossResultDiv.className = 'mt-4 p-4 rounded-lg text-center bg-red-200 text-red-800';
+    let isCompliant = true;
+    if (vehicleData.compliantYear && year < vehicleData.compliantYear) {
+        isCompliant = false;
     }
 
-    calculatorResultDiv.classList.remove('hidden');
-    setTimeout(() => calculatorResultDiv.classList.add('opacity-100'), 10);
+    const maxEthanol = vehicleData.maxEthanol; // e.g. E20 or E85
+    let title = "";
+    let bgColor = "";
+    let icon = "";
+    let warningHtml = "";
+
+    if (isCompliant) {
+        title = `Vehicle is ${maxEthanol} Compliant`;
+        bgColor = "bg-secondary"; // Green
+        icon = "check_circle";
+        if (maxEthanol === "E85") {
+            warningHtml = `
+            <div class="mt-4 p-4 bg-orange-100 border border-orange-300 text-orange-900 rounded-lg flex gap-3">
+                <span class="material-symbols-outlined text-orange-600">warning</span>
+                <div>
+                    <strong>Flex-Fuel Vehicle Detected!</strong> 
+                    <p>This vehicle can safely run on E85. However, NEVER put E85 in a standard E20 vehicle. E85 is highly corrosive to non-Flex-Fuel engines.</p>
+                </div>
+            </div>`;
+        }
+    } else {
+        title = `Not E20 Compliant`;
+        bgColor = "bg-error"; // Red
+        icon = "cancel";
+        warningHtml = `
+        <div class="mt-4 p-4 bg-red-100 border border-red-300 text-red-900 rounded-lg flex gap-3">
+            <span class="material-symbols-outlined text-red-600">dangerous</span>
+            <div>
+                <strong>Warning: Do not use E20 or E85.</strong> 
+                <p>Using E20 in this model (manufactured before ${vehicleData.compliantYear}) can cause severe engine and fuel line damage over time. Stick to standard E10 petrol.</p>
+            </div>
+        </div>`;
+    }
+
+    resultsContainer.innerHTML = `
+        <div class="bg-white rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-500 border border-secondary/20">
+            <div class="${bgColor} px-stack-md py-stack-sm flex items-center justify-between">
+                <div class="flex items-center gap-3 text-white">
+                    <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">${icon}</span>
+                    <span class="font-headline-md text-headline-md">${title}</span>
+                </div>
+                <span class="bg-white/20 text-white px-3 py-1 rounded-full font-label-md text-label-md backdrop-blur-sm">${maxEthanol} Certified</span>
+            </div>
+            <div class="p-stack-md">
+                <div class="flex flex-col md:flex-row gap-stack-md">
+                    <div class="flex-1 space-y-stack-sm">
+                        <h4 class="font-headline-md text-headline-md text-primary">Technical Approval Details</h4>
+                        <p class="font-body-md text-on-surface-variant">${vehicleData.note}</p>
+                        ${warningHtml}
+                    </div>
+                    <div class="md:w-1/3 bg-surface-container-low p-stack-md rounded-xl border border-outline-variant/30 text-center flex flex-col justify-center items-center">
+                        <span class="material-symbols-outlined text-secondary text-5xl mb-2">local_gas_station</span>
+                        <p class="font-label-md text-label-md text-secondary uppercase font-bold mb-1">Optimal Blend</p>
+                        <p class="font-display-lg text-4xl text-primary mb-2">${maxEthanol}</p>
+                    </div>
+                </div>
+                <div class="mt-stack-md pt-stack-sm border-t border-outline-variant flex justify-between items-center">
+                    <p class="text-caption text-outline">Selected: ${year} ${brand} ${model}</p>
+                    <button onclick="location.reload()" class="text-primary font-label-md text-label-md hover:underline flex items-center gap-1">
+                        Check another vehicle <span class="material-symbols-outlined">refresh</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
-// Fade-in animations for sections
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-        }
-    });
-}, { threshold: 0.1 });
-
-document.querySelectorAll('.fade-in-section').forEach(section => {
-    observer.observe(section);
-});
+function showError(msg) {
+    resultsContainer.innerHTML = `<div class="p-4 bg-red-100 text-red-800 rounded-lg text-center">${msg}</div>`;
+}
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', async () => {
-    // Only run the data fetching on the main page
-    if (brandSelect) {
-        try {
-            const functionUrl = 'https://getcardata-agjntd556a-uc.a.run.app';
-            const response = await fetch(functionUrl);
-            if (!response.ok) throw new Error(`Network response was not ok, status: ${response.status}`);
-            compliantCars = await response.json();
-            populateBrands();
-        } catch (error) {
-            console.error("Failed to fetch car data:", error);
-            brandSelect.innerHTML = '<option>Error loading data</option>';
-        }
+    try {
+        const response = await fetch('database.json');
+        if (!response.ok) throw new Error("Failed to fetch");
+        fullDatabase = await response.json();
+        populateBrands(); // Default to cars
+    } catch (e) {
+        console.error(e);
+        if (brandSelect) brandSelect.innerHTML = '<option>Error loading data</option>';
     }
 });
 
+if (typeSelect) typeSelect.addEventListener('change', populateBrands);
 if (brandSelect) brandSelect.addEventListener('change', updateModels);
 if (modelSelect) modelSelect.addEventListener('change', updateYears);
 if (yearSelect) yearSelect.addEventListener('change', () => {
     checkButton.disabled = !yearSelect.value;
-    hideResult();
 });
 if (checkButton) checkButton.addEventListener('click', checkCompliance);
-if (calculateButton) calculateButton.addEventListener('click', calculateMonthlyExpense);

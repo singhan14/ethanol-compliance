@@ -3,7 +3,10 @@
 <html class="scroll-smooth" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>E20 India | Fuel Compatibility Checker</title>
+<title>Ethanol Compliance Checker India | E20 & E85 Cars & Bikes List</title>
+<meta name="description" content="Check if your car or bike in India is compliant with E20 or E85 ethanol blended petrol. Complete database of Maruti, Hyundai, Tata, Honda, Hero, TVS and more.">
+<meta name="keywords" content="E20 fuel, E85 flex fuel, ethanol blended petrol, car compliance India, bike E20 compliance, check car E20 status">
+
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -158,8 +161,20 @@
 <div class="relative max-w-4xl mx-auto">
 <div class="glass-panel rounded-xl p-base md:p-stack-md shadow-lg border border-white/50 relative z-10">
 <div class="grid grid-cols-1 md:grid-cols-12 gap-base items-end">
+
+<!-- Type Selection -->
+<div class="md:col-span-2 space-y-2">
+<label class="block font-label-md text-label-md text-on-surface-variant px-2">Type</label>
+<div class="relative">
+<select id="vehicle-type" class="w-full h-14 pl-4 pr-4 bg-white/60 border border-outline-variant rounded-lg font-body-md appearance-none focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+<option value="cars" selected>Car</option>
+<option value="bikes">Bike</option>
+</select>
+</div>
+</div>
+
 <!-- Make Selection -->
-<div class="md:col-span-4 space-y-2">
+<div class="md:col-span-3 space-y-2">
 <label class="block font-label-md text-label-md text-on-surface-variant px-2">Vehicle Brand/Make</label>
 <div class="relative">
 <select id="car-brand" class="w-full h-14 pl-12 pr-4 bg-white/60 border border-outline-variant rounded-lg font-body-md appearance-none focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
@@ -175,7 +190,7 @@
 </div>
 </div>
 <!-- Model Selection -->
-<div class="md:col-span-4 space-y-2">
+<div class="md:col-span-3 space-y-2">
 <label class="block font-label-md text-label-md text-on-surface-variant px-2">Model Name</label>
 <div class="relative">
 <select id="car-model" class="w-full h-14 pl-12 pr-4 bg-white/60 border border-outline-variant rounded-lg font-body-md appearance-none focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
