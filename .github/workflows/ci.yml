@@ -11,5 +11,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Validate JSON
-        run: jq empty database.json
+      - name: Validate JS Syntax
+        run: node -c script.js
